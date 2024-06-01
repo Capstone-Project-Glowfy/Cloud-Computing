@@ -30,23 +30,14 @@ async function postScanDiseaseJerawat (model, image) {
                .toFloat()
 
           const prediction = await model.predict(tensor).data();
-
           const probability = prediction[0]
-
           const threshold = 0.5;
 
           if (probability > threshold){
-
+               return true;
           } else {
-               return 0;
+               return false;
           }
-
-          /*
-          jika model ML true or false
-          nanti cari logic yang 
-          mengembalikan nilai true or false 
-          atau mengembalikan nama penyakit atau 0
-          */
      } catch {
 
      }
@@ -55,26 +46,15 @@ async function postScanDiseaseJerawat (model, image) {
 
 async function getMessageStatus() {
      try {
-          let allSuccess
-          /*
-          nanti ada kondisi setiap untuk memeriksa
-          function postScanSkinDisease dan postScanSkinInformation
-          dan memastikan dua function itu berjalan lancar, 
-          baru masuk ke perkondisian
-          */
-
-          let errorStatus
           let message
 
-          if (allSuccess) {
-               errorStatus = false;
+          if (await postScanSkinInformation(model, image) && await postScanDiseaseJerawat(model, image) == true) {
                message = "scan success"
           } else {
-               errorStatus = true;
                message = "scan failed"
           }
 
-         return { message, errorStatus};    
+         return message;    
      } catch {
 
      }

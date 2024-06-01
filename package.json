@@ -1,11 +1,11 @@
 {
   "name": "glowfy",
   "version": "1.0.0",
-  "description": "Glowfy - Unlock Your Skin’s Potential and Discover Your Glow",
-  "main": "index.js",
+  "description": "Glowfy - Unlock Your Skin's Potential and Discover Your Glow",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node .src/server/server.js"
+    "dev": "node src/server/server.js",
+    "dev:prod": "nodemon src/server/server.js"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +13,10 @@
   "dependencies": {
     "@google-cloud/firestore": "^7.7.0",
     "@hapi/hapi": "^21.3.9",
-    "@tensorflow/tfjs": "^4.19.0"
+    "@tensorflow/tfjs-node": "^4.19.0",
+    "nanoid": "^5.0.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.2"
   }
 }
