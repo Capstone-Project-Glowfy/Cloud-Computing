@@ -1,4 +1,4 @@
-const {scanPredictHandler} = require('../server/handler');
+const {scanPredictHandler} = require('./handler.js');
  
 const routes = [
   {

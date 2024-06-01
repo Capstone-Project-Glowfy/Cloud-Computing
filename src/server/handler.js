@@ -1,18 +1,20 @@
-const { nanoid } = require('nanoid');
+const crypto = require('crypto');
+const storeData = require('../services/storeData');
+const { getMessageStatus, postScanSkinInformation, postScanSkinDisease } = require('../services/scanService');
+
 
 async function scanPredictHandler(request, h) {
      const { image } = request;
      const { model } = request;
     
-     const id =  nanoid(16);
-     const { message, errorStatus} = await getMessageStatus();
+     const id = crypto.randomUUID();
+     const message = await getMessageStatus();
      const skinCondition = await postScanSkinInformation(model, image);
      const disease = await postScanSkinDisease(model, image);
      const createdAt = new Date().toISOString();
     
      const data = {
           "id-scan":id,
-          "error-status": errorStatus, //from error handling?
           "message-scan": message,
           "prediction" : {
                "status-kulit": skinCondition, 
@@ -21,7 +23,7 @@ async function scanPredictHandler(request, h) {
           "Scan-Date":createdAt,
      }
 
-     // logic to push data
+     await storeData(id, data);
      
      return h.response({
           scanStatus: "Scan succesfully!!",
