@@ -1,6 +1,6 @@
 const tf = require('@tensorflow/tfjs-node');
 
-async function postScanSkinInformation (model, image) {
+const postScanSkinInformation = async (model, image) => {
      try {
           const tensor = tf.node
                .decodeJpeg(image)
@@ -21,7 +21,7 @@ async function postScanSkinInformation (model, image) {
      }
 }
 
-async function postScanDiseaseJerawat (model, image) {
+const postScanDiseaseJerawat = async (model, image) => {
      try {
           const tensor = tf.node
                .decodeJpeg(image)
@@ -44,7 +44,7 @@ async function postScanDiseaseJerawat (model, image) {
 }
 
 
-async function getMessageStatus() {
+const getMessageStatus = async (model, image) => {
      try {
           let message
 

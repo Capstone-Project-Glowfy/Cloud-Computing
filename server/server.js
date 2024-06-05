@@ -1,8 +1,9 @@
 // require('dotenv').config();
  
 const Hapi = require('@hapi/hapi');
-const routes = require('../server/routes');
-const loadModel = require('../services/loadModel');
+const routes = require('./routes');
+const {loadSkinModel, loadDiseaseModel} = require('../Controllers/loadModel');
+
 (async () => {
     const server = Hapi.server({
         port: 3000,
@@ -14,8 +15,11 @@ const loadModel = require('../services/loadModel');
         },
     });
  
-    // const model = await loadModel();
-    // server.app.model = model;
+    const skinModel = await loadSkinModel();
+    const diseaseModel = await loadDiseaseModel();
+    
+    server.app.model = skinModel;
+    server.app.model = diseaseModel;
  
     server.route(routes);
  
