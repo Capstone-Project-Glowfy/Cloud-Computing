@@ -34,4 +34,4 @@ const handleScanError = async (error) => {
     };
 }
 
-module.exports = {handleServerError,handleDatabaseError,handleScanError}
+module.exports = {handleServerError, handleDatabaseError, handleScanError};
