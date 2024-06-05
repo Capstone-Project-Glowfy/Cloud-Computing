@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const storeData = require('../services/storeData');
 const connectDB = require('../Controllers/connectDatabase')
-const {handleServerError,handleDatabaseError} = require('../Controllers/errorHandler')
+const { handleServerError, handleDatabaseError } = require('../Controllers/errorHandler')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const mysql = require('mysql2/promise');
@@ -9,14 +9,14 @@ const { getMessageStatus, postScanSkinInformation, postScanSkinDisease } = requi
 
 
 const scanPredictHandler = async (request, h) => {
-     const { image } = request;
-     const { model } = request;
+     const { image } = request.payload;
+     const { skinModel, diseaseModel } = request.server.app;
 
      try {
           const id = crypto.randomUUID();
           const message = await getMessageStatus();
-          const skinCondition = await postScanSkinInformation(model, image);
-          const disease = await postScanSkinDisease(model, image);
+          const skinCondition = await postScanSkinInformation(skinModel, image);
+          const disease = await postScanSkinDisease(diseaseModel, image);
           const createdAt = new Date().toISOString();
          
           const data = {
@@ -32,7 +32,7 @@ const scanPredictHandler = async (request, h) => {
           await storeData(id, data);
           
           return h.response({
-               scanStatus: "Scan succesfully!!",
+               status: "Scan succesfully!!",
                data: data,
           }).code(201)
      } catch (error) {
