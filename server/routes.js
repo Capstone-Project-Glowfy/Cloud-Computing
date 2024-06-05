@@ -1,10 +1,10 @@
-const {scanPredictHandler} = require('./handler.js');
+const {scanPredictHandler, getProducts, getArticles, getSkins, loginUser, registerUser} = require('./handler.js');
  
 const routes = [
   {
     path: '/register',
     method: 'POSt',
-    handler: test,
+    handler: loginUser,
     options: {
       payload: {
         
@@ -14,7 +14,7 @@ const routes = [
   {
     path: '/login',
     method: 'POST',
-    handler: test,
+    handler: registerUser,
     options: {
       payload: {
 
@@ -35,7 +35,7 @@ const routes = [
   {
     path: '/skins',
     method: 'GET',
-    handler: test,
+    handler: getSkins,
     options: {
       
     },
@@ -43,7 +43,7 @@ const routes = [
   {
     path: '/products',
     method: 'GET',
-    handler: test,
+    handler: getProducts,
     options: {
       
     },
@@ -51,7 +51,7 @@ const routes = [
   {
     path: '/articles',
     method: 'GET',
-    handler: test,
+    handler: getArticles,
     options: {
       
     },

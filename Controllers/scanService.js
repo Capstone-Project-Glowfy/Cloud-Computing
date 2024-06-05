@@ -1,4 +1,5 @@
 const tf = require('@tensorflow/tfjs-node');
+const {handleScanError} = require('../Controllers/errorHandler')
 
 const postScanSkinInformation = async (model, image) => {
      try {
@@ -16,8 +17,8 @@ const postScanSkinInformation = async (model, image) => {
 
           return skinCondition;
 
-     } catch {
-
+     } catch(error) {
+          await handleScanError(error);
      }
 }
 
@@ -38,8 +39,8 @@ const postScanDiseaseJerawat = async (model, image) => {
           } else {
                return false;
           }
-     } catch {
-
+     } catch(error) {
+          await handleScanError(error);
      }
 }
 
@@ -54,9 +55,9 @@ const getMessageStatus = async (model, image) => {
                message = "scan failed"
           }
 
-         return message;    
-     } catch {
-
+          return message;    
+     } catch(error) {
+          await handleScanError(error);
      }
 }
 
