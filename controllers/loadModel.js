@@ -5,7 +5,7 @@ const loadSkinModel = async () => {
 }
 
 const loadDiseaseModel = async () => {
-    return tf.loadGraphModel(process.env.DISEASE_MODEL_URL);
+    return tf.loadGraphModel(process.env.SKIN_PROBLEM_MODEL_URL);
 }
  
 module.exports = {loadSkinModel, loadDiseaseModel};
