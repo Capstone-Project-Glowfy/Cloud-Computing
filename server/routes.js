@@ -3,7 +3,7 @@ const {scanPredictHandler, getProducts, getArticles, getSkins, loginUser, regist
 const routes = [
   {
     path: '/register',
-    method: 'POSt',
+    method: 'POST',
     handler: loginUser,
     options: {
       payload: {
