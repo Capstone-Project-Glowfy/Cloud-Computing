@@ -49,9 +49,9 @@ const getMessageStatus = async (skinModel, diseaseModel, image) => {
         let message;
 
         if (await postScanSkinInformation(skinModel, image) && await postScanDiseaseJerawat(diseaseModel, image) == true) {
-            message = "scan success";
+            message = "scan is working";
         } else {
-            message = "scan failed";
+            message = "scan have problem";
         }
 
         return message;    

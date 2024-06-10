@@ -30,7 +30,7 @@ const scanPredictHandler = async (request, h) => {
         };
 
         return h.response({
-            status: "Scan successfully!!",
+            status: "Success",
             data: data,
         }).code(201);
     } catch (error) {
