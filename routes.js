@@ -60,17 +60,17 @@ module.exports = [
     },
     
     //predict
-    // {
-    //     path: '/predict',
-    //     method: 'POST',
-    //     handler: scanPredictHandler,
-    //     options: {
-    //         payload: {
-    //             allow: 'multipart/form-data',
-    //             multipart: true
-    //         },
-    //     },
-    // },
+    {
+        path: '/predict',
+        method: 'POST',
+        handler: scanPredictHandler,
+        options: {
+            payload: {
+                allow: 'multipart/form-data',
+                multipart: true
+            },
+        },
+    },
 
     // Skins
     {
