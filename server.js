@@ -23,6 +23,7 @@ const init = async () => {
 
     // Add routes
     server.route(routes);
+    await server.register(require('@hapi/inert'));
 
     await server.start();
     console.log('Server running on %s', server.info.uri);
