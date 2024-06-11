@@ -16,7 +16,8 @@ pool.query(`
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL
+        password VARCHAR(255) NOT NULL,
+        img VARCHAR(512) DEFAULT 'https://www.its.ac.id/it/wp-content/uploads/sites/46/2021/06/blank-profile-picture-973460_1280.png'
     )
 `, (err) => {
     if (err) {
@@ -25,3 +26,4 @@ pool.query(`
 });
 
 module.exports = pool.promise();
+

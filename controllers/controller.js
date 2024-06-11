@@ -5,7 +5,39 @@ const jwt = require('jsonwebtoken');
 const db = require('../database');
 const crypto = require('crypto');
 require('dotenv').config();
+const { Storage } = require('@google-cloud/storage');
+const path = require('path');
 
+//Google-Storage
+const storage = new Storage({
+    keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+});
+const bucketName = process.env.GCS_BUCKET_NAME;
+
+//GCS Upload 
+const uploadToGCS = async (file, userId) => {
+    const ext = path.extname(file.hapi.filename).toLowerCase();
+
+    if (ext !== '.jpg') {
+        throw new Error('File format not supported. Only .jpg is allowed.');
+    }
+
+    const fileName = `${userId}_${crypto.randomBytes(6).toString('hex')}${ext}`;
+    const bucket = storage.bucket(bucketName);
+    const blob = bucket.file(fileName);
+    const blobStream = blob.createWriteStream({
+        resumable: false,
+        contentType: file.hapi.headers['content-type'],
+    });
+
+    return new Promise((resolve, reject) => {
+        file.pipe(blobStream)
+            .on('finish', () => {
+                resolve(`https://storage.googleapis.com/${bucketName}/${fileName}`);
+            })
+            .on('error', reject);
+    });
+};
 
 //Scan Predict
 const scanPredictHandler = async (request, h) => {
@@ -30,7 +62,7 @@ const scanPredictHandler = async (request, h) => {
         };
 
         return h.response({
-            status: "Scan successfully!!",
+            status: "Success",
             data: data,
         }).code(201);
     } catch (error) {
@@ -74,13 +106,13 @@ const login = async (request, h) => {
             return h.response({ error: true, message: 'Invalid email or password' }).code(401);
         }
 
-        const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET);
 
         return h.response({
             error: false,
             message: 'success',
             loginResult: {
-                userId: `user-${user.id}`,
+                userId: `${user.id}`,
                 name: user.name,
                 token: token
             }
@@ -90,6 +122,44 @@ const login = async (request, h) => {
         return h.response({ error: true, message: 'Database error' }).code(500);
     }
 };
+
+// Edit User
+const editUser = async (request, h) => {
+    const { userId } = request.params;
+    const { name, email, password } = request.payload;
+    let img;
+
+    try {
+        // Periksa apakah pengguna ada
+        const [rows] = await db.execute("SELECT * FROM users WHERE id = ?", [userId]);
+        if (rows.length === 0) {
+            return h.response({ error: true, message: 'User not found' }).code(404);
+        }
+
+        // Jika gambar diunggah, unggah ke GCS dan dapatkan URL-nya
+        if (request.payload.img && request.payload.img.hapi) {
+            img = await uploadToGCS(request.payload.img, userId);
+        } else {
+            img = rows[0].img; 
+        }
+
+        // Hash password jika diberikan
+        const hashedPassword = password ? await bcrypt.hash(password, 10) : rows[0].password;
+
+        // Update pengguna di database
+        await db.execute(
+            "UPDATE users SET name = ?, email = ?, password = ?, img = ? WHERE id = ?",
+            [name || rows[0].name, email || rows[0].email, hashedPassword, img, userId]
+        );
+
+        return h.response({ error: false, message: 'User updated successfully', img }).code(200);
+    } catch (err) {
+        console.error(err);
+        return h.response({ error: true, message: 'Database error' }).code(500);
+    }
+};
+
+
 
 //Token 
 const verifyToken = (request, h) => {
@@ -124,24 +194,19 @@ const getSkins = async (request, h) => {
         {
             nama: 'Jerawat',
             foto: 'https://res.cloudinary.com/dk0z4ums3/image/upload/v1677459018/attached_image/jerawat-nodul-kenali-penyebab-dan-pengobatannya.jpg',
-            deskripsi: `Jerawat adalah masalah kulit yang terjadi ketika pori-pori kulit, tepatnya folikel rambut, tersumbat oleh kotoran, debu, minyak, atau sel kulit mati. 
-            Akibatnya, terjadi peradangan pada pori-pori tersebut dan bisa juga disertai infeksi. Jerawat sering muncul di wajah, leher, punggung, atau dada.`,
+            deskripsi: `Jerawat adalah masalah kulit yang terjadi ketika pori-pori kulit, tepatnya folikel rambut, tersumbat oleh kotoran, debu, minyak, atau sel kulit mati. Akibatnya, terjadi peradangan pada pori-pori tersebut dan bisa juga disertai infeksi. Jerawat sering muncul di wajah, leher, punggung, atau dada.`,
             artikel: 'https://www.alodokter.com/jerawat'
         },
         {
             nama: 'Kering',
             foto: 'https://asset-2.tstatic.net/shopping/foto/bank/images/5-rekomendasi-moisturizer-untuk-cocok-untuk-kulit-kering-dan-sering-mengelupas.jpg',
-            deskripsi: `Tipe kulit kering pada dasarnya cenderung bersisik atau memiliki permukaan yang kasar, dengan pori-pori yang mudah terlihat akibat kelembapan kulit yang rendah. 
-            Kulit jenis ini mudah mengalami iritasi dengan tanda tanda memerah, gatal dan meradang sehingga dapat memicu timbulnya jerawat.`,
+            deskripsi: `Tipe kulit kering pada dasarnya cenderung bersisik atau memiliki permukaan yang kasar, dengan pori-pori yang mudah terlihat akibat kelembapan kulit yang rendah. Kulit jenis ini mudah mengalami iritasi dengan tanda tanda memerah, gatal dan meradang sehingga dapat memicu timbulnya jerawat.`,
             artikel: 'https://www.alodokter.com/kulit-wajah-kering-merusak-kepercayaan-diri'
         },
         {
             nama: 'Berminyak',
             foto: 'https://foto.kontan.co.id/dEsO-KEowfAfJ1u5dhy0uPkJeOA=/smart/filters:format(webp)/2023/09/21/1345898760p.jpg',
-            deskripsi: `Kulit berminyak merupakan kondisi ketika kelenjar sebasea pada kulit menghasilkan terlalu banyak sebum. 
-            Sebum adalah minyak alami yang berfungsi melapisi kulit dan rambut. Produksi sebum berlebih membuat kulit terlihat mengkilap dan berkilau. 
-            Sebum sebenarnya membantu merawat kulit tetap lembap. Akan tetapi, minyak yang terlalu banyak justru dapat memicu masalah baru, terutama jerawat. 
-            Ini disebabkan karena kotoran lebih mudah menempel pada kulit hingga akhirnya menyumbat pori.`,
+            deskripsi: `Kulit berminyak merupakan kondisi ketika kelenjar sebasea pada kulit menghasilkan terlalu banyak sebum. Sebum adalah minyak alami yang berfungsi melapisi kulit dan rambut. Produksi sebum berlebih membuat kulit terlihat mengkilap dan berkilau. Sebum sebenarnya membantu merawat kulit tetap lembap. Akan tetapi, minyak yang terlalu banyak justru dapat memicu masalah baru, terutama jerawat. Ini disebabkan karena kotoran lebih mudah menempel pada kulit hingga akhirnya menyumbat pori.`,
             artikel: 'https://hellosehat.com/penyakit-kulit/perawatan-kulit/kulit-berminyak/'
         }
     ];
@@ -247,13 +312,14 @@ const getArticles = async (request, h) => {
             tahun: 2024
         }
     ];
-    return h.response(articles).code(200);
+    return h.response({articles}).code(200);
 };
 
 module.exports = {
     scanPredictHandler,
     register,
     login,
+    editUser,
     verifyToken,
     getSkins,
     getProducts,
