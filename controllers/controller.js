@@ -159,8 +159,6 @@ const editUser = async (request, h) => {
     }
 };
 
-
-
 //Token 
 const verifyToken = (request, h) => {
     const authHeader = request.headers.authorization;
