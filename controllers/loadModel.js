@@ -28,4 +28,6 @@ const loadDiseaseModel = async () => {
     }
 }
 
+
 module.exports = { loadSkinModel, loadDiseaseModel };
+
