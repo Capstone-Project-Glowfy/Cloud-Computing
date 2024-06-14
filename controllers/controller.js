@@ -114,6 +114,7 @@ const login = async (request, h) => {
             loginResult: {
                 userId: `${user.id}`,
                 name: user.name,
+                email: email,
                 token: token
             }
         }).code(200);
