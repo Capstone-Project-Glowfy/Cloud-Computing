@@ -1,5 +1,15 @@
 const tf = require('@tensorflow/tfjs-node');
 
+class L2 {
+
+    static className = 'L2';
+
+    constructor(config) {
+       return tf.regularizers.l1l2(config)
+    }
+}
+tf.serialization.registerClass(L2);
+
 const loadSkinModel = async () => {
     try {
         const url = process.env.SKIN_TYPE_MODEL_URL;

@@ -35,9 +35,9 @@ const postScanDiseaseJerawat = async (model, image) => {
         const threshold = 0.5;
 
         if (probability > threshold){
-            return true;
+            return "berjerawat";
         } else {
-            return false;
+            return "tidak berjerawat";
         }
     } catch(error) {
         await handleScanError(error);
